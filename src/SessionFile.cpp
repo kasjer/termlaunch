@@ -201,6 +201,7 @@ bool EnsureExists(const Settings &settings,
     const std::vector<std::pair<std::string, std::string>> overrides = {
         { "Present",            "1" },
         { "Protocol",           "serial" },
+        { "WinTitle",           "%25%25s" },
         { "SerialLine",         Util::ToNarrow(portName, CP_ACP) },
         { "SerialSpeed",        IntToNarrow(speed) },
         { "SerialDataBits",     IntToNarrow(settings.dataBits) },
