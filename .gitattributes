@@ -3,7 +3,7 @@
 # repository; these rules make that consistent on every clone regardless of the
 # cloner's core.autocrlf setting.
 
-* text=auto eol=crlf
+#* text=auto eol=crlf
 
 # The generated tray icons are binary. Never let a line-ending filter near them
 # — a single byte of conversion corrupts the DIB rows and the icon renders
