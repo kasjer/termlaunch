@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;manifest</Extensions>
+    </Filter>
+    <Filter Include="Docs and tools">
+      <UniqueIdentifier>{A2C5E77D-0E1A-4F3B-9B85-6F4E1D9C0A22}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\TrayUI.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\PortEnum.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\SessionFile.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\Settings.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\SettingsDlg.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\Launcher.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\Util.cpp"><Filter>Source Files</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\TrayUI.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\PortEnum.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\SessionFile.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\Settings.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\SettingsDlg.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\Launcher.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\Util.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\resource.h"><Filter>Header Files</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\termlaunch.rc"><Filter>Resource Files</Filter></ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\res\app.ico"><Filter>Resource Files</Filter></Image>
+    <Image Include="src\res\pulse1.ico"><Filter>Resource Files</Filter></Image>
+    <Image Include="src\res\pulse2.ico"><Filter>Resource Files</Filter></Image>
+    <Image Include="src\res\pulse3.ico"><Filter>Resource Files</Filter></Image>
+    <Image Include="src\res\pulse4.ico"><Filter>Resource Files</Filter></Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\termlaunch.manifest"><Filter>Resource Files</Filter></None>
+    <None Include="tools\make-icons.ps1"><Filter>Docs and tools</Filter></None>
+    <None Include="build.ps1"><Filter>Docs and tools</Filter></None>
+    <None Include="CLAUDE.md"><Filter>Docs and tools</Filter></None>
+    <None Include="README.md"><Filter>Docs and tools</Filter></None>
+  </ItemGroup>
+</Project>

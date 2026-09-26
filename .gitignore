@@ -1,0 +1,26 @@
+# Build output
+/x64/
+/build/
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+*.res
+*.tlog
+*.log
+*.exe
+
+# Generated icons are checked in on purpose (a plain build must not need
+# PowerShell), so src/res/*.ico is NOT ignored.
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Runtime config written next to the exe
+termlaunch.ini

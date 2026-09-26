@@ -1,0 +1,17 @@
+# TermLaunch is a Windows-only project built with MSVC and edited in Visual
+# Studio, so the working tree is CRLF everywhere. Git still stores LF in the
+# repository; these rules make that consistent on every clone regardless of the
+# cloner's core.autocrlf setting.
+
+* text=auto eol=crlf
+
+# The generated tray icons are binary. Never let a line-ending filter near them
+# — a single byte of conversion corrupts the DIB rows and the icon renders
+# blank or upside-down. Regenerate with tools/make-icons.ps1 if that happens.
+*.ico binary
+
+# Session files read and written by the app are ASCII with LF endings and no
+# BOM (PuTTY/KiTTY format). None are checked in today, but if a sample or test
+# fixture ever is, it must keep LF or the terminal will not parse it.
+Sessions/** -text
+*.session text eol=lf

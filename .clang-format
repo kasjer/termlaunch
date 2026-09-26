@@ -1,0 +1,61 @@
+# TermLaunch code style.
+#
+# Derived from the hand-reformatted .cpp files, not from a stock preset.
+# Verified by round-tripping: running clang-format with this config over
+# src/Launcher.cpp reproduces it byte-for-byte.
+#
+# ColumnLimit is deliberately 0: this codebase wraps long expressions by hand
+# and the formatter must preserve those choices rather than reflow them. The
+# rule for humans is a soft ~95 columns (the widest line in the tree is 93).
+#
+# See CLAUDE.md "Code style" for the three rules this file cannot express.
+
+Language: Cpp
+BasedOnStyle: LLVM
+
+# ---- indentation ----------------------------------------------------------
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: None
+IndentCaseLabels: false
+
+# ---- braces ---------------------------------------------------------------
+# Allman: every opening brace on its own line, including namespaces, functions,
+# structs, enums, if/else/for/while/switch.
+BreakBeforeBraces: Allman
+
+# ---- pointers and references ----------------------------------------------
+# Bound to the name: `const std::wstring &s`, `const wchar_t *const kName`.
+PointerAlignment: Right
+ReferenceAlignment: Pointer
+
+# ---- line breaking --------------------------------------------------------
+# 0 = never reflow; keep the author's line breaks.
+ColumnLimit: 0
+# Continuations of a broken expression indent by ContinuationIndentWidth
+# rather than aligning under the first operand.
+AlignOperands: DontAlign
+BreakBeforeBinaryOperators: None
+# Arguments that start on the same line as `(` align under it.
+AlignAfterOpenBracket: Align
+
+# ---- short constructs -----------------------------------------------------
+# Permissive, so a body the author put on one line stays there.
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortBlocksOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true
+AllowShortLambdasOnASingleLine: All
+AllowShortCaseLabelsOnASingleLine: false
+
+# ---- spacing and misc -----------------------------------------------------
+SpacesBeforeTrailingComments: 1
+AlignTrailingComments: false
+# `{ 1, 2, 3 }`, not `{1, 2, 3}`.
+Cpp11BracedListStyle: false
+# Include order is grouped by hand (own header, Windows, C++ stdlib, project).
+SortIncludes: false
+FixNamespaceComments: true
