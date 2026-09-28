@@ -137,6 +137,21 @@ writes as the text `SerialSpeed\1000000\`. `SerialDataBits`,
 `SerialStopHalfbits`, `SerialParity` and `SerialFlowControl` are all DWORDs;
 `Protocol` is a string.
 
+**Values are encoded differently in the two backends.** A session *file*
+percent-encodes its values with the same mungestr the file names use; the
+registry stores them decoded. The same setting therefore looks like this:
+
+| Setting | Registry | File |
+| --- | --- | --- |
+| `WinTitle` | `%%s` | `WinTitle\%25%25s\` |
+| `Font` | `Courier New` | `Font\Courier%20New\` |
+| `ProxyTelnetCommand` | `connect %host %port\n` | `connect%20%25host%20%25port%5Cn` |
+
+So `Override` values in `SessionStore.cpp` are held **decoded**, and
+`EncodeForFile` munges them on the way into a file while the registry backend
+writes them raw. This is invisible for `COM4`, `serial` and digits — which is
+exactly why it is easy to get wrong and only notice on a value like `WinTitle`.
+
 That is why `kFallbackTemplate` in `SessionStore.cpp` is a typed table rather
 than a block of text: the directory backend renders a DWORD as decimal text,
 the registry backend writes it as a DWORD, and neither can drift from the

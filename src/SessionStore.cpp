@@ -61,9 +61,13 @@ struct Override
 std::vector<Override> BuildOverrides(const Settings &settings,
                                      const std::wstring &portName, int speed)
 {
+    // Text values are held decoded. The directory backend percent-encodes them
+    // on the way out, the registry backend writes them raw — KiTTY stores
+    // "%%s" in the registry and "%25%25s" in a file for the same setting.
     return {
         { L"Present",            true,  L"",       1 },
         { L"Protocol",           false, L"serial", 0 },
+        { L"WinTitle",           false, L"%%s",    0 },   // session name in the title bar
         { L"SerialLine",         false, portName,  0 },
         { L"SerialSpeed",        true,  L"",       (DWORD)speed },
         { L"SerialDataBits",     true,  L"",       (DWORD)settings.dataBits },
@@ -152,12 +156,23 @@ std::string MakeLine(const std::string &key, const std::string &value)
     return key + "\\" + value + "\\";
 }
 
+// Session files percent-encode their values with the same mungestr the file
+// names use — the registry holds the decoded form. Digits come through
+// untouched, so numbers can take the same path.
+std::wstring EncodeForFile(const Override &o)
+{
+    return Util::MungeSessionName(o.isDword ? NumberToText(o.number) : o.text);
+}
+
 std::string FallbackTemplateText()
 {
     std::string out;
     for (const SessionValue &v : kFallbackTemplate)
     {
-        const std::wstring text = v.isDword ? NumberToText(v.number) : std::wstring(v.text);
+        // Percent-encoded like every other file value, so that adding a
+        // template entry containing a space later cannot silently break it.
+        const std::wstring text = Util::MungeSessionName(
+            v.isDword ? NumberToText(v.number) : std::wstring(v.text));
         out += MakeLine(Util::ToNarrow(v.name, CP_ACP), Util::ToNarrow(text, CP_ACP));
         out += '\n';
     }
@@ -179,9 +194,7 @@ std::string ApplyOverridesToText(const std::string &templateText,
         {
             const std::string name = Util::ToNarrow(overrides[i].name, CP_ACP);
             if (key != name) continue;
-            const std::wstring text = overrides[i].isDword ? NumberToText(overrides[i].number)
-                                                           : overrides[i].text;
-            line = MakeLine(name, Util::ToNarrow(text, CP_ACP));
+            line = MakeLine(name, Util::ToNarrow(EncodeForFile(overrides[i]), CP_ACP));
             applied[i] = true;
             break;
         }
@@ -190,10 +203,8 @@ std::string ApplyOverridesToText(const std::string &templateText,
     for (size_t i = 0; i < overrides.size(); ++i)
     {
         if (applied[i]) continue;
-        const std::wstring text = overrides[i].isDword ? NumberToText(overrides[i].number)
-                                                       : overrides[i].text;
         lines.push_back(MakeLine(Util::ToNarrow(overrides[i].name, CP_ACP),
-                                 Util::ToNarrow(text, CP_ACP)));
+                                 Util::ToNarrow(EncodeForFile(overrides[i]), CP_ACP)));
     }
 
     std::string out;
