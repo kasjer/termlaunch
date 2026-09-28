@@ -15,8 +15,11 @@ creating the session file on the fly when it does not exist yet.
 3. Tray menu lists every COM port currently present.
 4. Selecting a port launches the terminal as
    `"<terminal>" @<Port>_<Speed>` — e.g. `"kitty_portable.exe" @COM4_1000000`.
-5. If the session file does not exist, create it, with `SerialLine\COM4\` and
-   `SerialSpeed\1000000\` matching the file name.
+5. If the session does not exist, create it, with `SerialLine` and
+   `SerialSpeed` matching the session name.
+5b. **Both of KiTTY's storage backends.** KiTTY keeps sessions either as files
+   or in the registry, chosen by `savemode` in kitty.ini. Support both, pick
+   automatically, and let the user pin it.
 6. A port that is present but **already open by another process is greyed out**.
 7. When a **new** COM port appears, the tray icon **animates for ~1 second**.
 8. The icon reads as a serial port (DB-9 connector), like Device Manager's
@@ -28,9 +31,9 @@ creating the session file on the fly when it does not exist yet.
 ```
 src/
   main.cpp             WinMain, window proc, message loop, single-instance mutex
-  App.h                shared app state + private window messages
   PortEnum.*           SetupAPI enumeration of present COM ports + busy probing
-  SessionFile.*        read/write PuTTY/KiTTY session files, create from template
+  KittyConfig.*        finds kitty.ini and reads savemode/configdir/fileextension
+  SessionStore.*       creates sessions, in files or in the registry
   Settings.*           portable INI load/save, run-on-logon registry toggle
   Launcher.*           builds the command line and CreateProcess
   TrayUI.*             Shell_NotifyIcon, menu building, arrival animation
@@ -71,6 +74,29 @@ a runtime dependency creeps in.
 The sessions folder is KiTTY-portable's own `Sessions` folder (it sits next to
 `kitty_portable.exe`), which is why `@COM4_1000000` resolves.
 
+## Where sessions live
+
+KiTTY stores sessions in one of two places and decides by the `savemode` line
+in `kitty.ini`. `KittyConfig::Detect` looks for that file **beside the terminal
+executable first** — that is portable mode, and it wins — then in
+`%APPDATA%\KiTTY\kitty.ini`.
+
+| `savemode` | Backend |
+| --- | --- |
+| `dir` | files in a Sessions folder |
+| `registry` | `HKCU\SOFTWARE\9bis.com\KiTTY\Sessions` |
+| absent, or no kitty.ini at all | **registry** — that is KiTTY's default |
+| `file` | one flat file; KiTTY calls it unmaintained and we refuse it with a clear message |
+
+`SaveMode=auto\|dir\|registry` in termlaunch.ini pins the choice; `auto` is the
+default and means "read kitty.ini". `RegistryPath` overrides the key, which is
+how PuTTY gets supported (`SOFTWARE\SimonTatham\PuTTY\Sessions`).
+
+Both machines' ini files are worth remembering as test cases: the one in
+`Downloads` next to `kitty_portable.exe` sets `savemode=dir`, while the one in
+`%APPDATA%\KiTTY` has every savemode line commented out — so the same app
+resolves to different backends depending on which terminal it is pointed at.
+
 ## Session file format
 
 PuTTY/KiTTY portable session files are **ASCII, LF line endings**, one
@@ -90,9 +116,33 @@ SerialFlowControl\0\       (0 = none, 1 = XON/XOFF, 2 = RTS/CTS)
 
 New session files are built from `Default%20Settings` in the sessions folder
 when it exists (so the user's colours/fonts carry over), otherwise from the
-template embedded in `SessionFile.cpp`. Either way the keys above are
+template embedded in `SessionStore.cpp`. Either way the keys above are
 overwritten to match the file name, and `Protocol` is forced to `serial`.
 Writing must preserve LF endings and key order, and must not add a BOM.
+
+## Session registry format
+
+Same settings, same munged names, different shapes. One subkey per session
+under the Sessions key, named with `Util::MungeSessionName` exactly as the file
+name is — the default session really is stored as `Default%20Settings`.
+
+`kitty_sessions.reg` in the repo root is a real export of that key (checked for
+credentials first — every password field in it is empty) and is the reference
+for what the shapes actually look like.
+
+**Types matter**: each setting is `REG_SZ` or `REG_DWORD` and the terminal
+cares which. From that export, `SerialLine` is `REG_SZ "COM3"` while
+`SerialSpeed` is `REG_DWORD 0x000f4240` — the same value that a session *file*
+writes as the text `SerialSpeed\1000000\`. `SerialDataBits`,
+`SerialStopHalfbits`, `SerialParity` and `SerialFlowControl` are all DWORDs;
+`Protocol` is a string.
+
+That is why `kFallbackTemplate` in `SessionStore.cpp` is a typed table rather
+than a block of text: the directory backend renders a DWORD as decimal text,
+the registry backend writes it as a DWORD, and neither can drift from the
+other. When inheriting from an existing `Default Settings` key, values are
+copied with `RegEnumValueW` and written back **with their original type** —
+never re-typed.
 
 ## Gotchas worth remembering
 
@@ -103,6 +153,16 @@ Writing must preserve LF endings and key order, and must not add a BOM.
   (a user click), never on a timer, it opens with `dwDesiredAccess = 0`
   (query-only, no read/write), and `DetectBusy=0` in the INI disables it.
 - `\\.\COMx` (the `\\.\` prefix) is required for COM10 and above.
+- **kitty.ini files use two different comment characters.** The one KiTTY ships
+  into `%APPDATA%` comments with `;`, the one written beside a portable exe
+  uses `#`. Treat both as comments, or a switched-off `;savemode=registry` line
+  reads as if it were live.
+- A `//` comment must never end with a backslash — it continues onto the next
+  line and silently swallows it. This actually bit the `SaveMode` enum, where
+  a comment ending `...under Sessions\` ate the `Registry` enumerator. Watch
+  for it whenever a comment ends in a Windows path or a `Key\value\` example.
+- A registry session key that exists but holds **no values** is a leftover, not
+  a session; treat it as absent and fill it in.
 - Enumerate with `GUID_DEVCLASS_PORTS` + `DIGCF_PRESENT`, then read `PortName`
   from the device's software key. That class also contains LPT ports — filter on
   `PortName` starting with `COM`. `SPDRP_FRIENDLYNAME` gives the Device Manager

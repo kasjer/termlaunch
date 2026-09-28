@@ -21,7 +21,8 @@
     <ClCompile Include="src\main.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\TrayUI.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\PortEnum.cpp"><Filter>Source Files</Filter></ClCompile>
-    <ClCompile Include="src\SessionFile.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\SessionStore.cpp"><Filter>Source Files</Filter></ClCompile>
+    <ClCompile Include="src\KittyConfig.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\Settings.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\SettingsDlg.cpp"><Filter>Source Files</Filter></ClCompile>
     <ClCompile Include="src\Launcher.cpp"><Filter>Source Files</Filter></ClCompile>
@@ -30,7 +31,8 @@
   <ItemGroup>
     <ClInclude Include="src\TrayUI.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\PortEnum.h"><Filter>Header Files</Filter></ClInclude>
-    <ClInclude Include="src\SessionFile.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\SessionStore.h"><Filter>Header Files</Filter></ClInclude>
+    <ClInclude Include="src\KittyConfig.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\Settings.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\SettingsDlg.h"><Filter>Header Files</Filter></ClInclude>
     <ClInclude Include="src\Launcher.h"><Filter>Header Files</Filter></ClInclude>

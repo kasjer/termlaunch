@@ -15,7 +15,7 @@
 
 #include "Launcher.h"
 #include "PortEnum.h"
-#include "SessionFile.h"
+#include "SessionStore.h"
 #include "Settings.h"
 #include "SettingsDlg.h"
 #include "TrayUI.h"
@@ -109,7 +109,7 @@ void ShowAbout(HWND owner)
         L"TermLaunch 1.0\n"
         L"Serial port launcher for KiTTY and PuTTY.\n\n"
         L"Terminal:\n" + g_app.settings.terminalPath + L"\n\n"
-        L"Sessions:\n" + g_app.settings.sessionsDir + L"\n\n"
+        L"Sessions:\n" + SessionStore::DescribeLocation(g_app.settings) + L"\n\n"
         L"Settings file:\n" + g_app.settings.iniPath;
     Util::ShowInfo(owner, text);
 }
@@ -165,9 +165,7 @@ void ShowTrayMenu(POINT anchor)
         Rescan(false);
         break;
     case IDM_OPEN_SESSIONS:
-        if (!Util::DirectoryExists(g_app.settings.sessionsDir))
-            Util::EnsureDirectory(g_app.settings.sessionsDir);
-        Launcher::OpenFolder(g_app.settings.sessionsDir);
+        SessionStore::OpenLocation(g_app.settings);
         break;
     case IDM_SETTINGS:
         SettingsDlg::Show(g_app.hwnd, g_app.inst, g_app.settings);

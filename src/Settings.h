@@ -14,6 +14,13 @@ struct Settings
     std::wstring terminalPath  = L"C:\\Users\\Jerzy\\Downloads\\kitty_portable.exe";
     std::wstring sessionsDir   = L"C:\\Users\\Jerzy\\Downloads\\Sessions";
 
+    // Where sessions live. "auto" reads savemode from kitty.ini; "dir" and
+    // "registry" pin the backend regardless of what the ini says.
+    std::wstring saveModeOverride = L"auto";
+    // Relative to HKEY_CURRENT_USER. PuTTY itself uses
+    // SOFTWARE\SimonTatham\PuTTY\Sessions.
+    std::wstring registryPath     = L"SOFTWARE\\9bis.com\\KiTTY\\Sessions";
+
     int defaultSpeed = 1000000;
     std::vector<int> speeds = { 9600, 19200, 38400, 57600, 115200,
                                 230400, 460800, 921600, 1000000, 2000000 };

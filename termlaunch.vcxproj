@@ -104,10 +104,11 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
+    <ClCompile Include="src\KittyConfig.cpp" />
     <ClCompile Include="src\Launcher.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PortEnum.cpp" />
-    <ClCompile Include="src\SessionFile.cpp" />
+    <ClCompile Include="src\SessionStore.cpp" />
     <ClCompile Include="src\Settings.cpp" />
     <ClCompile Include="src\SettingsDlg.cpp" />
     <ClCompile Include="src\TrayUI.cpp" />
@@ -115,10 +116,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ClInclude Include="src\KittyConfig.h" />
     <ClInclude Include="src\Launcher.h" />
     <ClInclude Include="src\PortEnum.h" />
     <ClInclude Include="src\resource.h" />
-    <ClInclude Include="src\SessionFile.h" />
+    <ClInclude Include="src\SessionStore.h" />
     <ClInclude Include="src\Settings.h" />
     <ClInclude Include="src\SettingsDlg.h" />
     <ClInclude Include="src\TrayUI.h" />

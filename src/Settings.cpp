@@ -111,6 +111,16 @@ void Settings::Load()
         sessionsDir = Util::PathJoin(Util::GetDirectoryOf(terminalPath), L"Sessions");
     }
 
+    saveModeOverride = Util::Trim(ReadIniString(iniPath, L"SaveMode", defaults.saveModeOverride));
+    if (!Util::IEquals(saveModeOverride, L"dir") &&
+        !Util::IEquals(saveModeOverride, L"registry"))
+    {
+        saveModeOverride = L"auto";
+    }
+
+    registryPath = Util::Trim(ReadIniString(iniPath, L"RegistryPath", defaults.registryPath));
+    if (registryPath.empty()) registryPath = defaults.registryPath;
+
     SetSpeedsFromText(ReadIniString(iniPath, L"Speeds", defaults.SpeedsAsText()));
 
     defaultSpeed = ClampSpeed(ReadIniInt(iniPath, L"DefaultSpeed", defaults.defaultSpeed));
@@ -151,6 +161,8 @@ bool Settings::Save(std::wstring &error) const
     const bool ok =
         WriteIniString(iniPath, L"TerminalPath", terminalPath) &&
         WriteIniString(iniPath, L"SessionsDir",  sessionsDir)  &&
+        WriteIniString(iniPath, L"SaveMode",     saveModeOverride) &&
+        WriteIniString(iniPath, L"RegistryPath", registryPath)  &&
         WriteIniString(iniPath, L"Speeds",       SpeedsAsText()) &&
         WriteIniInt(iniPath, L"DefaultSpeed", defaultSpeed) &&
         WriteIniInt(iniPath, L"DataBits",     dataBits)     &&
@@ -213,11 +225,8 @@ bool Settings::Validate(std::wstring &problem) const
         problem = L"The terminal program was not found:\n" + terminalPath;
         return false;
     }
-    if (sessionsDir.empty())
-    {
-        problem = L"No sessions folder is configured.";
-        return false;
-    }
+    // The sessions folder is only required by the directory backend, so
+    // SessionStore checks it — in registry mode it is legitimately unused.
     return true;
 }
 

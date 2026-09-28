@@ -1,5 +1,5 @@
 #include "Launcher.h"
-#include "SessionFile.h"
+#include "SessionStore.h"
 #include "Util.h"
 
 #include <windows.h>
@@ -24,10 +24,10 @@ bool Launch(const Settings &settings,
     }
 
     bool created = false;
-    if (!SessionFile::EnsureExists(settings, portName, speed, created, error))
+    if (!SessionStore::EnsureExists(settings, portName, speed, created, error))
         return false;
 
-    const std::wstring sessionName = SessionFile::NameFor(portName, speed);
+    const std::wstring sessionName = SessionStore::NameFor(portName, speed);
 
     // PuTTY and KiTTY both accept "@session" as a bare argument. The session
     // name is passed unmunged — the terminal applies its own name-to-file
@@ -60,12 +60,6 @@ bool Launch(const Settings &settings,
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
     return true;
-}
-
-void OpenFolder(const std::wstring &path)
-{
-    if (path.empty()) return;
-    ShellExecuteW(nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 }
 
 } // namespace Launcher

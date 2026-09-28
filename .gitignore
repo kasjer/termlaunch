@@ -21,6 +21,8 @@
 *.suo
 *.VC.db
 *.VC.opendb
+# Resource-editor cache, regenerated whenever termlaunch.rc is opened in VS
+*.aps
 
 # Runtime config written next to the exe
 termlaunch.ini

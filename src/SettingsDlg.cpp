@@ -1,4 +1,5 @@
 #include "SettingsDlg.h"
+#include "SessionStore.h"
 #include "Util.h"
 #include "resource.h"
 
@@ -23,6 +24,14 @@ const int kStopHalfbits[] = { 2, 3, 4 };                  // 1, 1.5, 2 stop bits
 const wchar_t *const kStopLabels[] = { L"1", L"1.5", L"2" };
 const wchar_t *const kParityLabels[] = { L"None", L"Odd", L"Even", L"Mark", L"Space" };
 const wchar_t *const kFlowLabels[] = { L"None", L"XON/XOFF", L"RTS/CTS", L"DSR/DTR" };
+
+// Index order must match kSaveModeValues.
+const wchar_t *const kSaveModeLabels[] = {
+    L"Automatic (follow kitty.ini)",
+    L"Files in a folder",
+    L"Windows registry",
+};
+const wchar_t *const kSaveModeValues[] = { L"auto", L"dir", L"registry" };
 
 std::wstring GetText(HWND dlg, int id)
 {
@@ -118,6 +127,26 @@ std::wstring BrowseForFolder(HWND owner, const std::wstring &current)
     return ok ? std::wstring(path) : std::wstring();
 }
 
+std::wstring SaveModeFromCombo(HWND dlg)
+{
+    const int index = ComboSelection(dlg, IDC_SAVE_MODE, 0);
+    if (index < 0 || index >= (int)ARRAYSIZE(kSaveModeValues)) return L"auto";
+    return kSaveModeValues[index];
+}
+
+// The status line answers "given everything on screen right now, where would a
+// launch actually write?" — which is the whole point of the Automatic setting.
+void RefreshSaveModeStatus(HWND dlg, const Settings &current)
+{
+    Settings probe = current;
+    probe.terminalPath = Util::Trim(GetText(dlg, IDC_TERMINAL_PATH));
+    probe.sessionsDir = Util::Trim(GetText(dlg, IDC_SESSIONS_DIR));
+    probe.registryPath = Util::Trim(GetText(dlg, IDC_REGISTRY_PATH));
+    probe.saveModeOverride = SaveModeFromCombo(dlg);
+
+    SetText(dlg, IDC_SAVE_MODE_STATUS, SessionStore::DescribeLocation(probe));
+}
+
 void LoadIntoDialog(HWND dlg, const Settings &s)
 {
     SetText(dlg, IDC_TERMINAL_PATH, s.terminalPath);
@@ -158,6 +187,17 @@ void LoadIntoDialog(HWND dlg, const Settings &s)
     SetChecked(dlg, IDC_SHOW_FRIENDLY, s.showFriendlyName);
 
     SetText(dlg, IDC_INI_PATH, L"Settings file:  " + s.iniPath);
+
+    int saveModeIndex = 0;
+    for (int i = 0; i < (int)ARRAYSIZE(kSaveModeValues); ++i)
+    {
+        if (Util::IEquals(s.saveModeOverride, kSaveModeValues[i])) saveModeIndex = i;
+    }
+    FillCombo(dlg, IDC_SAVE_MODE, kSaveModeLabels,
+              (int)ARRAYSIZE(kSaveModeLabels), saveModeIndex);
+    SetText(dlg, IDC_REGISTRY_PATH, s.registryPath);
+
+    RefreshSaveModeStatus(dlg, s);
 }
 
 bool SaveFromDialog(HWND dlg, Settings &s)
@@ -166,6 +206,8 @@ bool SaveFromDialog(HWND dlg, Settings &s)
 
     edited.terminalPath = Util::Trim(GetText(dlg, IDC_TERMINAL_PATH));
     edited.sessionsDir = Util::Trim(GetText(dlg, IDC_SESSIONS_DIR));
+    edited.saveModeOverride = SaveModeFromCombo(dlg);
+    edited.registryPath = Util::Trim(GetText(dlg, IDC_REGISTRY_PATH));
     edited.SetSpeedsFromText(GetText(dlg, IDC_SPEED_LIST));
 
     const std::wstring speedText = Util::Trim(GetText(dlg, IDC_DEFAULT_SPEED));
@@ -209,10 +251,19 @@ bool SaveFromDialog(HWND dlg, Settings &s)
             return false;
         }
     }
-    if (edited.sessionsDir.empty())
+    // Each backend needs only its own destination, so check whichever one this
+    // configuration will actually use.
+    const SaveMode mode = SessionStore::Resolve(edited).mode;
+    if (mode == SaveMode::Directory && edited.sessionsDir.empty())
     {
-        Util::ShowError(dlg, L"Please choose the folder where sessions are stored.");
+        Util::ShowError(dlg, L"Sessions are stored as files, so please choose a folder.");
         SetFocus(GetDlgItem(dlg, IDC_SESSIONS_DIR));
+        return false;
+    }
+    if (mode == SaveMode::Registry && edited.registryPath.empty())
+    {
+        Util::ShowError(dlg, L"Sessions are stored in the registry, so please give a key.");
+        SetFocus(GetDlgItem(dlg, IDC_REGISTRY_PATH));
         return false;
     }
 
@@ -272,14 +323,32 @@ INT_PTR CALLBACK DialogProc(HWND dlg, UINT msg, WPARAM wParam, LPARAM lParam)
                     SetText(dlg, IDC_SESSIONS_DIR,
                             Util::PathJoin(Util::GetDirectoryOf(picked), L"Sessions"));
                 }
+                // A different terminal may well mean a different kitty.ini.
+                if (state) RefreshSaveModeStatus(dlg, *state->settings);
             }
             return TRUE;
         }
         case IDC_SESSIONS_BROWSE: {
             std::wstring picked = BrowseForFolder(dlg, GetText(dlg, IDC_SESSIONS_DIR));
-            if (!picked.empty()) SetText(dlg, IDC_SESSIONS_DIR, picked);
+            if (!picked.empty())
+            {
+                SetText(dlg, IDC_SESSIONS_DIR, picked);
+                if (state) RefreshSaveModeStatus(dlg, *state->settings);
+            }
             return TRUE;
         }
+        case IDC_SAVE_MODE:
+            // Re-resolving reads kitty.ini, so do it on a settled value rather
+            // than on every keystroke.
+            if (HIWORD(wParam) == CBN_SELCHANGE && state)
+                RefreshSaveModeStatus(dlg, *state->settings);
+            return TRUE;
+        case IDC_TERMINAL_PATH:
+        case IDC_SESSIONS_DIR:
+        case IDC_REGISTRY_PATH:
+            if (HIWORD(wParam) == EN_KILLFOCUS && state)
+                RefreshSaveModeStatus(dlg, *state->settings);
+            return TRUE;
         case IDOK:
             if (state && SaveFromDialog(dlg, *state->settings))
                 EndDialog(dlg, IDOK);

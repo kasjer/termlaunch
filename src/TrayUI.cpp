@@ -1,4 +1,5 @@
 #include "TrayUI.h"
+#include "SessionStore.h"
 #include "Util.h"
 #include "resource.h"
 
@@ -227,7 +228,8 @@ int TrayUI::ShowContextMenu(const Settings &settings,
 
     AppendMenuW(menu.Get(), MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu.Get(), MF_STRING, IDM_REFRESH, L"Refresh");
-    AppendMenuW(menu.Get(), MF_STRING, IDM_OPEN_SESSIONS, L"Open sessions folder");
+    AppendMenuW(menu.Get(), MF_STRING, IDM_OPEN_SESSIONS,
+                SessionStore::OpenLocationLabel(settings).c_str());
     AppendMenuW(menu.Get(), MF_STRING, IDM_SETTINGS, L"Settings\x2026");
     AppendMenuW(menu.Get(), MF_STRING, IDM_ABOUT, L"About TermLaunch");
     AppendMenuW(menu.Get(), MF_SEPARATOR, 0, nullptr);

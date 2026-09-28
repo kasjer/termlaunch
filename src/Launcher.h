@@ -17,7 +17,4 @@ bool Launch(const Settings &settings,
             int speed,
             std::wstring &error);
 
-// Opens a folder in Explorer.
-void OpenFolder(const std::wstring &path);
-
 } // namespace Launcher

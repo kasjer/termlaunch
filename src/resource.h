@@ -49,6 +49,11 @@
 #define IDC_LBL_PARITY             1026
 #define IDC_LBL_FLOW_CONTROL       1027
 #define IDC_LBL_BUSY_HINT          1028
+#define IDC_SAVE_MODE              1029
+#define IDC_REGISTRY_PATH          1030
+#define IDC_LBL_SAVE_MODE          1031
+#define IDC_LBL_REGISTRY_PATH      1032
+#define IDC_SAVE_MODE_STATUS       1033
 
 // ---- static menu commands ------------------------------------------------
 #define IDM_REFRESH                 300

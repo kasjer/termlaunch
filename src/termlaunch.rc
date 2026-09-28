@@ -16,59 +16,67 @@ IDI_PULSE4  ICON    "res\\pulse4.ico"
 /////////////////////////////////////////////////////////////////////////////
 // Settings dialog
 
-IDD_SETTINGS DIALOGEX 0, 0, 330, 296
+IDD_SETTINGS DIALOGEX 0, 0, 330, 370
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "TermLaunch Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Programs and folders", IDC_GRP_PATHS, 7, 4, 316, 72
+    GROUPBOX        "Terminal and sessions", IDC_GRP_PATHS, 7, 4, 316, 126
 
     LTEXT           "&Terminal program (KiTTY or PuTTY):", IDC_LBL_TERMINAL, 15, 18, 200, 8
     EDITTEXT        IDC_TERMINAL_PATH, 15, 28, 246, 14, ES_AUTOHSCROLL
     PUSHBUTTON      "B&rowse...", IDC_TERMINAL_BROWSE, 266, 27, 49, 16
 
-    LTEXT           "&Sessions folder:", IDC_LBL_SESSIONS, 15, 48, 200, 8
-    EDITTEXT        IDC_SESSIONS_DIR, 15, 58, 246, 14, ES_AUTOHSCROLL
-    PUSHBUTTON      "Br&owse...", IDC_SESSIONS_BROWSE, 266, 57, 49, 16
+    LTEXT           "Sessions are stored &as:", IDC_LBL_SAVE_MODE, 15, 50, 84, 8
+    COMBOBOX        IDC_SAVE_MODE, 102, 48, 160, 90, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 
-    GROUPBOX        "Speeds", IDC_GRP_SPEEDS, 7, 82, 316, 62
+    LTEXT           "&Sessions folder:", IDC_LBL_SESSIONS, 15, 69, 200, 8
+    EDITTEXT        IDC_SESSIONS_DIR, 15, 79, 246, 14, ES_AUTOHSCROLL
+    PUSHBUTTON      "Br&owse...", IDC_SESSIONS_BROWSE, 266, 78, 49, 16
 
-    LTEXT           "Baud rates offered in the tray menu (comma separated):", IDC_LBL_SPEED_LIST, 15, 96, 290, 8
-    EDITTEXT        IDC_SPEED_LIST, 15, 106, 300, 14, ES_AUTOHSCROLL
+    LTEXT           "Registry &key, under HKEY_CURRENT_USER:", IDC_LBL_REGISTRY_PATH, 15, 99, 220, 8
+    EDITTEXT        IDC_REGISTRY_PATH, 15, 109, 300, 14, ES_AUTOHSCROLL
 
-    LTEXT           "&Default speed:", IDC_LBL_DEFAULT_SPEED, 15, 128, 55, 8
-    COMBOBOX        IDC_DEFAULT_SPEED, 73, 126, 76, 120, CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "", IDC_SAVE_MODE_STATUS, 9, 134, 314, 18
 
-    GROUPBOX        "Defaults for newly created session files", IDC_GRP_SERIAL, 7, 150, 316, 60
+    GROUPBOX        "Speeds", IDC_GRP_SPEEDS, 7, 156, 316, 62
 
-    LTEXT           "Data bits:", IDC_LBL_DATA_BITS, 15, 168, 34, 8
-    COMBOBOX        IDC_DATA_BITS, 52, 166, 38, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Stop bits:", IDC_LBL_STOP_BITS, 100, 168, 33, 8
-    COMBOBOX        IDC_STOP_BITS, 136, 166, 40, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Parity:", IDC_LBL_PARITY, 186, 168, 24, 8
-    COMBOBOX        IDC_PARITY, 213, 166, 60, 90, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Baud rates offered in the tray menu (comma separated):", IDC_LBL_SPEED_LIST, 15, 170, 290, 8
+    EDITTEXT        IDC_SPEED_LIST, 15, 180, 300, 14, ES_AUTOHSCROLL
 
-    LTEXT           "Flow control:", IDC_LBL_FLOW_CONTROL, 15, 190, 44, 8
-    COMBOBOX        IDC_FLOW_CONTROL, 62, 188, 76, 90, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Default speed:", IDC_LBL_DEFAULT_SPEED, 15, 202, 55, 8
+    COMBOBOX        IDC_DEFAULT_SPEED, 73, 200, 76, 120, CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
 
-    GROUPBOX        "Behaviour", IDC_GRP_BEHAVIOUR, 7, 216, 316, 56
+    GROUPBOX        "Defaults for newly created sessions", IDC_GRP_SERIAL, 7, 224, 316, 60
+
+    LTEXT           "Data bits:", IDC_LBL_DATA_BITS, 15, 242, 34, 8
+    COMBOBOX        IDC_DATA_BITS, 52, 240, 38, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Stop bits:", IDC_LBL_STOP_BITS, 100, 242, 33, 8
+    COMBOBOX        IDC_STOP_BITS, 136, 240, 40, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Parity:", IDC_LBL_PARITY, 186, 242, 24, 8
+    COMBOBOX        IDC_PARITY, 213, 240, 60, 90, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+
+    LTEXT           "Flow control:", IDC_LBL_FLOW_CONTROL, 15, 264, 44, 8
+    COMBOBOX        IDC_FLOW_CONTROL, 62, 262, 76, 90, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+
+    GROUPBOX        "Behaviour", IDC_GRP_BEHAVIOUR, 7, 290, 316, 56
 
     CONTROL         "Start &automatically on logon", IDC_RUN_ON_LOGON,
-                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 15, 230, 145, 10
+                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 15, 304, 145, 10
     CONTROL         "A&nimate the icon when a port appears", IDC_ANIMATE,
-                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 168, 230, 148, 10
+                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 168, 304, 148, 10
     CONTROL         "&Grey out ports already in use", IDC_DETECT_BUSY,
-                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 15, 243, 145, 10
+                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 15, 317, 145, 10
     CONTROL         "Show device &names in the menu", IDC_SHOW_FRIENDLY,
-                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 168, 243, 148, 10
+                    "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 168, 317, 148, 10
 
     LTEXT           "Checking whether a port is in use opens it briefly, which resets some boards.",
-                    IDC_LBL_BUSY_HINT, 15, 257, 300, 8
+                    IDC_LBL_BUSY_HINT, 15, 331, 300, 8
 
-    LTEXT           "", IDC_INI_PATH, 7, 278, 205, 16
+    LTEXT           "", IDC_INI_PATH, 7, 352, 205, 16
 
-    DEFPUSHBUTTON   "OK", IDOK, 218, 277, 50, 16
-    PUSHBUTTON      "Cancel", IDCANCEL, 273, 277, 50, 16
+    DEFPUSHBUTTON   "OK", IDOK, 218, 351, 50, 16
+    PUSHBUTTON      "Cancel", IDCANCEL, 273, 351, 50, 16
 END
 
 /////////////////////////////////////////////////////////////////////////////
